@@ -16,11 +16,11 @@ class CategoryRepository implements CategoryRepositoryInterface
     }
 
     public function index(){
-        return Category::get();
+        return Category::whereNull('parent_id')->with('children')->get();
     }
 
     public function getById($id){
-       return Category::findOrFail($id);
+       return Category::with('children')->find($id);
     }
 
     public function store(array $data){
@@ -28,10 +28,20 @@ class CategoryRepository implements CategoryRepositoryInterface
     }
 
     public function update(array $data,$id){
-       return Category::whereId($id)->update($data);
+        $category = Category::find($id);
+        $category->update($data);
+        return $category;
     }
     
     public function delete($id){
-       Category::destroy($id);
+        $category = Category::find($id);
+        $category->delete();
+        return $category;
+    }
+    
+    // pour recupere sous-categories
+    public function getSubCategories($id)
+    {
+        return Category::where('parent_id', $id)->get();
     }
 }

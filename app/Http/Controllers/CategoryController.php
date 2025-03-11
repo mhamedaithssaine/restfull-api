@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Interfaces\CategoryRepositoryInterface;
 
 class CategoryController extends Controller
@@ -46,7 +47,8 @@ class CategoryController extends Controller
     {
         $details =[
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'parent_id'=>$request->parent_id,
         ];
         DB::beginTransaction();
 
@@ -79,11 +81,12 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCategoryRequest $request, string $id)
     {
         $updateDetails =[
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'parent_id'=>$request->parent_id,
         ];
         DB::beginTransaction();
         try{
@@ -105,5 +108,14 @@ class CategoryController extends Controller
         $this->categoryRepositoryInterface->delete($id);
 
         return ApiResponseClass::sendResponse('Product Delete Successful','',204);
+    }
+
+    /**
+     * Get subcategories of a category
+     */
+    public function getSubCategories(string $id)
+    {
+        $subCategories = $this->categoryRepositoryInterface->getSubCategories($id);
+        return ApiResponseClass::sendResponse(CategoryResource::collection($subCategories), '', 200);
     }
 }

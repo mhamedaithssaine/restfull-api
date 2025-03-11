@@ -25,7 +25,8 @@ class UpdateCategoryRequest extends FormRequest
     {
             return [
                 'name' => 'required',
-              'description' => 'required|max:255'
+              'description' => 'required|max:255',
+              'parent_id' => '',
           ];
       
     }
