@@ -44,4 +44,5 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return Category::where('parent_id', $id)->get();
     }
+
 }
