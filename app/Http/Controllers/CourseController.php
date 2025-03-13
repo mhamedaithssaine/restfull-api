@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Classes\ApiResponseClass;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\CourseResource;
+use App\Http\Resources\CourseCollection;
 use App\Http\Requests\StoreCourseRequest;
 use App\Interfaces\CourseRepositoryInterface;
 
@@ -24,7 +26,7 @@ class CourseController extends Controller
     {
         try {
             $courses = $this->courseRepository->index();
-            return ApiResponseClass::sendResponse($courses, 'Courses retrieved successfully');
+            return ApiResponseClass::sendResponse(new CourseCollection($courses),'Courses retrieved successfully');
         } catch (\Exception $e) {
             return ApiResponseClass::throw($e, 'Failed to retrieve courses');
         }
@@ -43,14 +45,14 @@ class CourseController extends Controller
      */
     public function store(StoreCourseRequest $request)
     {
-        
+
         try {
             DB::beginTransaction();
 
             $course = $this->courseRepository->store($request->validated());
 
             DB::commit();
-            return ApiResponseClass::sendResponse($course, 'Course created successfully', 201);
+            ApiResponseClass::sendResponse(new CourseResource($course), 'Course created successfully', 201);
         } catch (\Exception $e) {
             return ApiResponseClass::rollback($e, 'Failed to create course');
         }
@@ -61,14 +63,18 @@ class CourseController extends Controller
      */
     public function show(string $id)
     {
-          try {
+        try {
             $course = $this->courseRepository->getById($id);
 
             if (!$course) {
                 return response()->json(['message' => 'Course not found'], 404);
             }
 
-            return ApiResponseClass::sendResponse($course, 'Course retrieved successfully');
+
+            return ApiResponseClass::sendResponse(
+                new CourseResource($course),
+                'Course retrieved successfully'
+            );
         } catch (\Exception $e) {
             return ApiResponseClass::throw($e, 'Failed to retrieve course');
         }
@@ -108,7 +114,7 @@ class CourseController extends Controller
      */
     public function destroy(string $id)
     {
-         try {
+        try {
             DB::beginTransaction();
 
             $course = $this->courseRepository->delete($id);
@@ -124,7 +130,7 @@ class CourseController extends Controller
         }
     }
 
-     /**
+    /**
      * Get courses by category.
      */
     public function getByCategory($categoryId)

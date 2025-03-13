@@ -24,7 +24,8 @@ class StoreTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+          'name' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:tags,slug',
         ];
     }
 
