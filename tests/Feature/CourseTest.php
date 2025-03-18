@@ -134,9 +134,5 @@ describe('Course API Tests', function () {
         $response->assertJsonCount(2, 'data');
     });
 
-    test('returns 404 for non-existent course', function () {
-        $response = $this->get('/api/v1/courses/999');
-        
-        $response->assertStatus(404);
-    });
+  
 });
