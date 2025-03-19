@@ -6,6 +6,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EnrollmentController;
@@ -58,12 +59,22 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     // User Routes (Gestion des roles)
     Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole']); 
     Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole']);
-    // Enrolement (inscriptions aux cours)
+    // Enrolement (inscriptions aux cours) Routes
     Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll']);
     Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments']);
     Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus']);
     Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment']);
+
+    // Video Routes
+    Route::middleware('role:mentor')->group(function () {
+    Route::post('/courses/{id}/videos', [VideoController::class, 'store']);
+    Route::get('/courses/{id}/videos', [VideoController::class, 'index']);
+    Route::get('/videos/{id}', [VideoController::class, 'show']);
+    Route::put('/videos/{id}', [VideoController::class, 'update']);
+    Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
+    });
 });
+
 
 
 
