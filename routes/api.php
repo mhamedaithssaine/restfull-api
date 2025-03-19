@@ -4,10 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CourseController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PermissionController;
 
 Route::get('/user', function (Request $request) {
@@ -57,7 +58,15 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     // User Routes (Gestion des roles)
     Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole']); 
     Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole']);
+    // Enrolement (inscriptions aux cours)
+    Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll']);
+    Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments']);
+    Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus']);
+    Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment']);
 });
+
+
+
 
 // authentification 
 Route::group(['middleware' => 'api','prefix' => 'auth'
