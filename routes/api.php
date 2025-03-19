@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Api\PermissionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -13,7 +16,7 @@ Route::get('/user', function (Request $request) {
 
 
 
-Route::prefix('v1')->group(function () {
+Route::middleware('auth:api')->prefix('v1')->group(function () {
     // Course Routes
     Route::get('/courses', [CourseController::class, 'index']);
     Route::post('/courses', [CourseController::class, 'store']);
@@ -37,8 +40,24 @@ Route::prefix('v1')->group(function () {
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
     Route::get('/categories/{id}/subcategories', [CategoryController::class, 'getSubCategories']);
-});
 
+     // Role Routes
+     Route::get('/roles', [RoleController::class, 'index']); 
+     Route::post('/roles', [RoleController::class, 'store']); 
+     Route::get('/roles/{id}', [RoleController::class, 'show']); 
+     Route::put('/roles/{id}', [RoleController::class, 'update']); 
+     Route::delete('/roles/{id}', [RoleController::class, 'destroy']); 
+
+     //Permission Routes
+     Route::get('/permissions', [PermissionController::class, 'index']);
+     Route::post('/permissions', [PermissionController::class, 'store']);
+     Route::put('/permissions/{id}', [PermissionController::class, 'update']);
+     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy']);
+
+      // User Routes (Gestion des rôles)
+    Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole']); 
+    Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole']);
+});
 
 // authentification 
 Route::group(['middleware' => 'api','prefix' => 'auth'
@@ -50,4 +69,3 @@ Route::group(['middleware' => 'api','prefix' => 'auth'
     Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
     Route::post('/update-profile', [AuthController::class, 'updateProfile'])->middleware('auth:api')->name('updateProfile');
 });
-

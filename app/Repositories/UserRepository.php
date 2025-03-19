@@ -21,6 +21,7 @@ class UserRepository implements UserRepositoryInterface
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password'])
+     
         ]);
     }
 

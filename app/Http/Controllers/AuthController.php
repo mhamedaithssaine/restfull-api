@@ -34,8 +34,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return ApiResponseClass::throw($validator->errors(), 'Validation failed');
-        }
-
+        } 
         try {
             DB::beginTransaction();
             $user = $this->userRepository->createUser(request()->all());
