@@ -2,101 +2,116 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+use App\Classes\ApiResponseClass;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Interfaces\UserRepositoryInterface;
 
 class AuthController extends Controller
 {
-   /**
-     * Register a User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function register() {
+    protected $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+    public function register()
+    {
         $validator = Validator::make(request()->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed|min:8',
         ]);
-  
-        if($validator->fails()){
-            return response()->json($validator->errors()->toJson(), 400);
+
+        if ($validator->fails()) {
+            return ApiResponseClass::throw($validator->errors(), 'Validation failed');
         }
-  
-        $user = new User;
-        $user->name = request()->name;
-        $user->email = request()->email;
-        $user->password = bcrypt(request()->password);
-        $user->save();
-  
-        return response()->json($user, 201);
+
+        try {
+            DB::beginTransaction();
+            $user = $this->userRepository->createUser(request()->all());
+            DB::commit();
+
+            return ApiResponseClass::sendResponse(
+                new UserResource($user),
+                'User registered successfully'
+            );
+        } catch (\Exception $e) {
+            return ApiResponseClass::rollback($e);
+        }
     }
-  
-  
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function login()
     {
         $credentials = request(['email', 'password']);
-  
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+
+        if (!$token = auth()->attempt($credentials)) {
+            return ApiResponseClass::throw(new \Exception('Invalid credentials'), 'Unauthorized');
         }
-  
+
         return $this->respondWithToken($token);
     }
-  
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function me()
     {
-        return response()->json(auth()->user());
+        return ApiResponseClass::sendResponse(
+            new UserResource($this->userRepository->getAuthenticatedUser()),
+            'User profile retrieved successfully'
+        );
     }
-  
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function logout()
     {
         auth()->logout();
-  
-        return response()->json(['message' => 'Successfully logged out']);
+        return ApiResponseClass::sendResponse(null, 'Successfully logged out');
     }
-  
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
+
     public function refresh()
     {
         return $this->respondWithToken(auth()->refresh());
     }
-  
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+
+    //update profil 
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        try{
+            $user = Auth::user();
+
+            $data = $request->validated();
+
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('images', 'public');
+                $data['image'] = $imagePath;
+
+            }
+            
+    
+            $updatedUser = $this->userRepository->updateUser($data, $user);
+            return ApiResponseClass::sendResponse(new UserResource($updatedUser),'Your profile is Updated Successful',201);
+        }catch(\Exception $ex){
+            return ApiResponseClass::rollback($ex);
+        }
+
+    }
+
     protected function respondWithToken($token)
     {
-        return response()->json([
+        return ApiResponseClass::sendResponse([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        ], 'Token generated successfully');
     }
 }
+
