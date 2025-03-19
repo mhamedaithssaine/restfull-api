@@ -1,5 +1,5 @@
 <?php 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 
 use App\Http\Controllers\Controller;
@@ -21,8 +21,8 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|unique:roles,name',
-            'permissions' => 'nullable|array',
-            'permissions.' => 'required',
+            // 'permissions' => 'nullable|array',
+            // 'permissions.' => 'required',
         ]);
 
         $role = Role::create(['name' => $request->name]);
@@ -39,8 +39,8 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|string|unique:roles,name,' . $id,
-            'permissions' => 'nullable|array',
-            'permissions.' => 'required',
+            // 'permissions' => 'nullable|array',
+            // 'permissions.' => 'required',
         ]);
 
         $role = Role::findOrFail($id);

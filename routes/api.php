@@ -5,10 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
-use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\PermissionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -41,20 +41,20 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
     Route::get('/categories/{id}/subcategories', [CategoryController::class, 'getSubCategories']);
 
-     // Role Routes
-     Route::get('/roles', [RoleController::class, 'index']); 
-     Route::post('/roles', [RoleController::class, 'store']); 
-     Route::get('/roles/{id}', [RoleController::class, 'show']); 
-     Route::put('/roles/{id}', [RoleController::class, 'update']); 
-     Route::delete('/roles/{id}', [RoleController::class, 'destroy']); 
+    // Role Routes
+    Route::get('/roles', [RoleController::class, 'index']); 
+    Route::post('/roles', [RoleController::class, 'store']); 
+    Route::put('/roles/{id}', [RoleController::class, 'update']); 
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy']); 
+   
 
-     //Permission Routes
+    // Permission Routes
      Route::get('/permissions', [PermissionController::class, 'index']);
      Route::post('/permissions', [PermissionController::class, 'store']);
      Route::put('/permissions/{id}', [PermissionController::class, 'update']);
      Route::delete('/permissions/{id}', [PermissionController::class, 'destroy']);
 
-      // User Routes (Gestion des rôles)
+    // User Routes (Gestion des roles)
     Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole']); 
     Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole']);
 });
