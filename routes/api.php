@@ -1,11 +1,13 @@
 <?php
 
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CategoryController;
@@ -48,7 +50,6 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::post('/roles', [RoleController::class, 'store']); 
     Route::put('/roles/{id}', [RoleController::class, 'update']); 
     Route::delete('/roles/{id}', [RoleController::class, 'destroy']); 
-   
 
     // Permission Routes
      Route::get('/permissions', [PermissionController::class, 'index']);
@@ -56,23 +57,27 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
      Route::put('/permissions/{id}', [PermissionController::class, 'update']);
      Route::delete('/permissions/{id}', [PermissionController::class, 'destroy']);
 
-    // User Routes (Gestion des roles)
-    Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole']); 
-    Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole']);
+    // User  (Gestion des roles) Routes
+    Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole'])->middleware('role:admin'); 
+    Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole'])->middleware('role:admin');
+
     // Enrolement (inscriptions aux cours) Routes
-    Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll']);
-    Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments']);
-    Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus']);
-    Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment']);
+    Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll'])->middleware('role:student');
+    Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments'])->middleware('role:student');
+    Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus'])->middleware('role:student');
+    Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment'])->middleware('role:student');
+    
+    // Statistuque Routes
+    Route::get('/stats/courses', [StatsController::class, 'getCourseStats'])->middleware('role:admin');
+    Route::get('/stats/categories', [StatsController::class, 'getCategoryStats'])->middleware('role:admin');
+    Route::get('/stats/tags', [StatsController::class, 'getTagStats'])->middleware('role:admin');
 
     // Video Routes
-    Route::middleware('role:mentor')->group(function () {
-    Route::post('/courses/{id}/videos', [VideoController::class, 'store']);
-    Route::get('/courses/{id}/videos', [VideoController::class, 'index']);
-    Route::get('/videos/{id}', [VideoController::class, 'show']);
-    Route::put('/videos/{id}', [VideoController::class, 'update']);
-    Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
-    });
+    Route::post('/courses/{id}/videos', [VideoController::class, 'store'])->middleware('role:mentor');
+    Route::get('/courses/{id}/videos', [VideoController::class, 'index'])->middleware('role:mentor');;
+    Route::get('/videos/{id}', [VideoController::class, 'show'])->middleware('role:mentor');;
+    Route::put('/videos/{id}', [VideoController::class, 'update'])->middleware('role:mentor');;
+    Route::delete('/videos/{id}', [VideoController::class, 'destroy'])->middleware('role:mentor');;
 });
 
 
