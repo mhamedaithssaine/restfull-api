@@ -19,6 +19,8 @@ class CourseRepository implements CourseRepositoryInterface
 
     public function store(array $data)
     {
+        $user = auth()->user();
+        $data['user_id']= $user->id;
         $course = Course::create($data);
         
         if (isset($data['tags'])) {

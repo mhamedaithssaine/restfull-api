@@ -14,8 +14,8 @@ class StatsRepository implements StatsRepositoryInterface
     {
         return [
             'total_courses' => Course::count(),
-            'active_courses' => Course::where('status', 'active')->count(),
-            'inactive_courses' => Course::where('status', 'inactive')->count(),
+            // 'active_courses' => Course::where('status', 'active')->count(),
+            // 'inactive_courses' => Course::where('status', 'inactive')->count(),
         ];
     }
 
@@ -24,7 +24,7 @@ class StatsRepository implements StatsRepositoryInterface
     {
         return [
             'total_categories' => Category::count(),
-            'categories_with_courses' => Category::has('courses')->count(),
+            // 'categories_with_courses' => Category::has( 'courses')->count(),
         ];
     }
 

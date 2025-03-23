@@ -14,7 +14,7 @@ class VideoController extends Controller
     public function __construct(VideoRepository $videoRepository)
     {
         $this->videoRepository = $videoRepository;
-        $this->middleware('role:mentor');
+        // $this->middleware('role:mentor');
     }
 
 

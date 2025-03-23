@@ -46,16 +46,16 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::get('/categories/{id}/subcategories', [CategoryController::class, 'getSubCategories']);
 
     // Role Routes
-    Route::get('/roles', [RoleController::class, 'index']); 
-    Route::post('/roles', [RoleController::class, 'store']); 
-    Route::put('/roles/{id}', [RoleController::class, 'update']); 
-    Route::delete('/roles/{id}', [RoleController::class, 'destroy']); 
+    Route::get('/roles', [RoleController::class, 'index'])->middleware('role:admin'); 
+    Route::post('/roles', [RoleController::class, 'store'])->middleware('role:admin'); 
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->middleware('role:admin'); 
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->middleware('role:admin'); 
 
     // Permission Routes
-     Route::get('/permissions', [PermissionController::class, 'index']);
-     Route::post('/permissions', [PermissionController::class, 'store']);
-     Route::put('/permissions/{id}', [PermissionController::class, 'update']);
-     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy']);
+     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('role:admin');
+     Route::post('/permissions', [PermissionController::class, 'store'])->middleware('role:admin');
+     Route::put('/permissions/{id}', [PermissionController::class, 'update'])->middleware('role:admin');
+     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->middleware('role:admin');
 
     // User  (Gestion des roles) Routes
     Route::post('/users/{userId}/assign-role', [UserController::class, 'assignRole'])->middleware('role:admin'); 
@@ -74,10 +74,14 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
 
     // Video Routes
     Route::post('/courses/{id}/videos', [VideoController::class, 'store'])->middleware('role:mentor');
-    Route::get('/courses/{id}/videos', [VideoController::class, 'index'])->middleware('role:mentor');;
-    Route::get('/videos/{id}', [VideoController::class, 'show'])->middleware('role:mentor');;
-    Route::put('/videos/{id}', [VideoController::class, 'update'])->middleware('role:mentor');;
-    Route::delete('/videos/{id}', [VideoController::class, 'destroy'])->middleware('role:mentor');;
+    Route::get('/courses/{id}/videos', [VideoController::class, 'index'])->middleware('role:mentor');
+    Route::get('/videos/{id}', [VideoController::class, 'show'])->middleware('role:mentor');
+    Route::put('/videos/{id}', [VideoController::class, 'update'])->middleware('role:mentor');
+    Route::delete('/videos/{id}', [VideoController::class, 'destroy'])->middleware('role:mentor');
+
+    // Profile Routes
+    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
+    Route::post('/update-profile', [AuthController::class, 'updateProfile'])->middleware('auth:api')->name('updateProfile');
 });
 
 
@@ -91,6 +95,5 @@ Route::group(['middleware' => 'api','prefix' => 'auth'
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api')->name('logout');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
-    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
-    Route::post('/update-profile', [AuthController::class, 'updateProfile'])->middleware('auth:api')->name('updateProfile');
+   
 });
