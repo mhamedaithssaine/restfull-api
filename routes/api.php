@@ -10,6 +10,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\MentorController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PermissionController;
@@ -62,10 +64,10 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::post('/users/{userId}/remove-role', [UserController::class, 'removeRole'])->middleware('role:admin');
 
     // Enrolement (inscriptions aux cours) Routes
-    Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll'])->middleware('role:student');
-    Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments'])->middleware('role:student');
-    Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus'])->middleware('role:student');
-    Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment'])->middleware('role:student');
+    Route::post('/courses/{id}/enroll', [EnrollmentController::class, 'enroll']);
+    Route::get('/courses/{id}/enrollments', [EnrollmentController::class, 'listEnrollments'])->middleware('role:student|admin');
+    Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus'])->middleware('role:student|admin');
+    Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment'])->middleware('role:student|admin');
     
     // Statistuque Routes
     Route::get('/stats/courses', [StatsController::class, 'getCourseStats'])->middleware('role:admin');
@@ -82,6 +84,16 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     // Profile Routes
     Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
     Route::post('/update-profile', [AuthController::class, 'updateProfile'])->middleware('auth:api')->name('updateProfile');
+
+    // Epace mentor Routes
+    Route::get('mentors/{id}/courses', [MentorController::class, 'getMentorCourses'])->middleware('role:mentor');
+    Route::get('mentors/{id}/students', [MentorController::class, 'getMentorStudents'])->middleware('role:mentor');
+    Route::get('mentors/{id}/performance', [MentorController::class, 'getMentorPerformance'])->middleware('role:mentor');
+
+
+    // Espace student Routes
+    Route::get('students/{id}/courses', [StudentController::class, 'getStudentCourses'])->middleware('role:student');
+    Route::get('students/{id}/progress', [StudentController::class, 'getStudentProgress'])->middleware('role:student');
 });
 
 

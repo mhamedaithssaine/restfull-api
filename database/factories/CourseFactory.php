@@ -34,6 +34,7 @@ class CourseFactory extends Factory
             'category_id' => Category::factory(),
             'created_at' => now(),
             'updated_at' => now(),
+            'user_id'=>2,
         ];
     }
 }
