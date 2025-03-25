@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Interfaces\EnrollmentRepositoryInterface;
 use App\Interfaces\StatsRepositoryInterface;
+use App\Repositories\EnrollmentRepository;
 use App\Repositories\StatsRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\UserRepository;
@@ -35,6 +37,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CourseRepositoryInterface::class,CourseRepository::class);
         $this->app->bind(UserRepositoryInterface::class,UserRepository::class);
         $this->app->bind(StatsRepositoryInterface::class,StatsRepository::class);
+        $this->app->bind(EnrollmentRepositoryInterface::class,EnrollmentRepository::class);
 
     }
 
