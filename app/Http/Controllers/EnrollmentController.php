@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Stripe\Stripe;
 use App\Models\Course;
-use App\Models\Enrollment;
+use App\Models\Payment;
 use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\EnrollmentRepository;
 
@@ -18,18 +20,57 @@ class EnrollmentController extends Controller
     }
 
 
-    public function enroll(Request $request, $courseId)
+    public function enroll(Request $request, $course_id)
     {
-        $userId = auth()->id(); 
-        $enrollment = $this->enrollmentRepository->enroll($courseId, $userId);
+        $userId = Auth::id();
 
-        if (!$enrollment) {
-            return response()->json(['message' => 'User is already enrolled'], 400);
+        $paymentExists = Payment::where('user_id', $userId)
+            ->where('course_id', $course_id)
+            ->where('payment_status', 'payed')
+            ->exists();
+
+        if ($paymentExists) {
+            return response()->json(['message' => 'Vous êtes déjà inscrit à ce cours'], 409);
         }
 
-        return response()->json(['message' => 'Enrollment successful', 'enrollment' => $enrollment], 201);
-    }
+        Stripe::setApiKey(env('STRIPE_TEST_SK'));
 
+        $course = Course::findOrFail($course_id);
+
+        $session = Session::create([
+            'line_items'  => [
+                [
+                    'price_data' => [
+                        'currency'     => 'mad',
+                        'product_data' => [
+                            'name' => $course->title,
+                        ],
+                        'unit_amount'  => $course->price * 100,
+                    ],
+                    'quantity'   => 1,
+                ],
+            ],
+            'mode'        => 'payment',
+            'success_url' => route('payment.success', $course_id),
+            'cancel_url'  => route('payment.checkout', $course_id),
+        ]);
+
+        Payment::create([
+            'user_id' => $userId,
+            'course_id' => $course_id,
+            'amount' => $course->price,
+            'payment_status' => "pending",
+            'transaction_id' => $session->id,
+            'payment_method'=>"stripe"
+        ]);
+
+        session()->put('Session_token_payment', $session->id);
+
+        return response()->json([
+            'message' => 'Redirection vers Stripe pour le paiement',
+            'payment_url' => $session->url
+        ]);
+    }
 
     public function getEnrollmentsByCourse($courseId)
     {

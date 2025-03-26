@@ -11,6 +11,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EnrollmentController;
@@ -69,6 +70,9 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus'])->middleware('role:student|admin');
     Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment'])->middleware('role:student|admin');
     
+    Route::post("/payment/checkout/{id}",[EnrollmentController::class,"enroll"])->name("payment.checkout");
+Route::get("/payment/success/{course}",[StripeController::class,"success"])->name("payment.success");
+
     // Statistuque Routes
     Route::get('/stats/courses', [StatsController::class, 'getCourseStats'])->middleware('role:admin');
     Route::get('/stats/categories', [StatsController::class, 'getCategoryStats'])->middleware('role:admin');
