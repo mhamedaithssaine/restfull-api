@@ -11,6 +11,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\MentorController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\CategoryController;
@@ -31,6 +32,9 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::put('/courses/{id}', [CourseController::class, 'update']);
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/category/{categoryId}', [CourseController::class, 'getByCategory']);
+
+   
+    
 
     // Tag Routes
     Route::get('/tags', [TagController::class, 'index']);
@@ -70,8 +74,9 @@ Route::middleware('auth:api')->prefix('v1')->group(function () {
     Route::put('/enrollments/{id}', [EnrollmentController::class, 'updateEnrollmentStatus'])->middleware('role:student|admin');
     Route::delete('/enrollments/{id}', [EnrollmentController::class, 'deleteEnrollment'])->middleware('role:student|admin');
     
+    //Payment Routes
     Route::post("/payment/checkout/{id}",[EnrollmentController::class,"enroll"])->name("payment.checkout");
-Route::get("/payment/success/{course}",[StripeController::class,"success"])->name("payment.success");
+    Route::get("/payment/success/{course}",[StripeController::class,"success"])->name("payment.success");
 
     // Statistuque Routes
     Route::get('/stats/courses', [StatsController::class, 'getCourseStats'])->middleware('role:admin');
@@ -98,9 +103,20 @@ Route::get("/payment/success/{course}",[StripeController::class,"success"])->nam
     // Espace student Routes
     Route::get('students/{id}/courses', [StudentController::class, 'getStudentCourses'])->middleware('role:student');
     Route::get('students/{id}/progress', [StudentController::class, 'getStudentProgress'])->middleware('role:student');
+     
+ 
+
 });
 
 
+Route::middleware('auth:api')->prefix('v3')->group(function () {
+    //Payment Routes
+    Route::post("/payment/checkout/{id}",[EnrollmentController::class,"enroll"])->name("payment.checkout");
+    Route::get("/payment/success/{course}",[StripeController::class,"success"])->name("payment.success");
+   // Serchre Routes 
+   Route::get('/searchcourses', [SearchController::class, 'searchCourse']);
+   Route::get('/filtercoursesbycategory', [SearchController::class, 'filterCoursesByCategoryLevel']);
+});
 
 
 
@@ -113,3 +129,5 @@ Route::group(['middleware' => 'api','prefix' => 'auth'
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
    
 });
+
+

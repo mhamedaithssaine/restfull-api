@@ -67,4 +67,5 @@ class CourseRepository implements CourseRepositoryInterface
             ->with(['tags'])
             ->get();
     }
+
 }
