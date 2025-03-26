@@ -116,6 +116,8 @@ Route::middleware('auth:api')->prefix('v3')->group(function () {
    // Serchre Routes 
    Route::get('/searchcourses', [SearchController::class, 'searchCourse']);
    Route::get('/filtercoursesbycategory', [SearchController::class, 'filterCoursesByCategoryLevel']);
+   Route::get('/mentore', [SearchController::class, 'searchMentore']);
+
 });
 
 
