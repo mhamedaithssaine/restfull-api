@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Classes\ApiResponseClass;
 use Illuminate\Support\Facades\DB;
@@ -142,4 +143,7 @@ class CourseController extends Controller
             return ApiResponseClass::throw($e, 'Failed to retrieve courses');
         }
     }
+
+
+
 }

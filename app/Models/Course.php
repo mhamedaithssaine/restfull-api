@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Course extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes ;
+    
 
     protected $fillable = [
         'title',
@@ -18,6 +19,7 @@ class Course extends Model
         'duration',
         'level',
         'category_id',
+        'user_id'
     ];
 
     protected $casts = [
@@ -34,4 +36,8 @@ class Course extends Model
         return $this->belongsToMany(Tag::class, 'course_tag');
     }
     
+    public function enrollments()
+{
+    return $this->hasMany(Enrollment::class);
+}
 }

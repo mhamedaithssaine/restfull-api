@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
+
 use App\Models\Tag;
-use App\Interfaces\TagRepositoryInterface;
 use Illuminate\Support\Str;
+use App\Interfaces\TagRepositoryInterface;
 
 class TagRepository implements TagRepositoryInterface
 {
@@ -26,6 +27,7 @@ class TagRepository implements TagRepositoryInterface
         return Tag::find($id);
     }
 
+    
     public function store(array $data)
     {
         $data['slug'] = Str::slug($data['name']);
